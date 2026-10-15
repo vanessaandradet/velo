@@ -30,8 +30,9 @@ test.describe('Consulta de Pedido', ()=> {
       - img
       - paragraph: Pedido
       - paragraph: VLO-TLNB7T
-      - img
-      - text: APROVADO
+      - status:
+          - img
+          - text: APROVADO
       - img "Velô Sprint"
       - paragraph: Modelo
       - paragraph: Velô Sprint
@@ -55,6 +56,14 @@ test.describe('Consulta de Pedido', ()=> {
       - paragraph: /R\\$ \\d+\\.\\d+,\\d+/
       `);
     
+      const statusBadge = page.getByRole('status').filter({hasText: 'APROVADO'})
+
+      await expect(statusBadge).toHaveClass(/bg-green-100/)
+      await expect(statusBadge).toHaveClass(/text-green-700/)
+
+      const statusIcon = statusBadge.locator('svg')
+      await expect(statusIcon).toHaveClass(/lucide-circle-check-big/)
+
     })
     
   test('deve consultar um pedido reprovado', async ({ page }) => {
@@ -73,8 +82,9 @@ test.describe('Consulta de Pedido', ()=> {
       - img
       - paragraph: Pedido
       - paragraph: VLO-1PWLI8
-      - img
-      - text: REPROVADO
+      - status:
+          - img
+          - text: REPROVADO
       - img "Velô Sprint"
       - paragraph: Modelo
       - paragraph: Velô Sprint
@@ -98,6 +108,66 @@ test.describe('Consulta de Pedido', ()=> {
       - paragraph: /R\\$ \\d+\\.\\d+,\\d+/
       `);
       
+      const statusBadge = page.getByRole('status').filter({hasText: 'REPROVADO'})
+
+      await expect(statusBadge).toHaveClass(/bg-red-100/)
+      await expect(statusBadge).toHaveClass(/text-red-700/)
+
+      const statusIcon = statusBadge.locator('svg')
+      await expect(statusIcon).toHaveClass(/lucide-circle-x/)
+
+    })
+
+  test('deve consultar um pedido em analise', async ({ page }) => {
+
+    // Test Data
+    const order = 'VLO-BMYGD9'
+           
+    //Act
+        
+    await page.getByRole('textbox', { name: 'Número do Pedido' }).fill(order)
+    await page.getByRole('button', { name: 'Buscar Pedido' }).click()
+        
+    //Assert
+    
+    await expect(page.getByTestId(`order-result-${order}`)).toMatchAriaSnapshot(`
+      - img
+      - paragraph: Pedido
+      - paragraph: VLO-BMYGD9
+      - status:
+          - img
+          - text: EM_ANALISE
+      - img "Velô Sprint"
+      - paragraph: Modelo
+      - paragraph: Velô Sprint
+      - paragraph: Cor
+      - paragraph: Midnight Black
+      - paragraph: Interior
+      - paragraph: cream
+      - paragraph: Rodas
+      - paragraph: sport Wheels
+      - heading "Dados do Cliente" [level=4]
+      - paragraph: Nome
+      - paragraph: João Teste Silva
+      - paragraph: Email
+      - paragraph: joaoteste@veli.com.br
+      - paragraph: Loja de Retirada
+      - paragraph
+      - paragraph: Data do Pedido
+      - paragraph: /\\d+\\/\\d+\\/\\d+/
+      - heading "Pagamento" [level=4]
+      - paragraph: À Vista
+      - paragraph: /R\\$ \\d+\\.\\d+,\\d+/
+      `);
+        
+      const statusBadge = page.getByRole('status').filter({hasText: 'EM_ANALISE'})
+
+      await expect(statusBadge).toHaveClass(/bg-amber-100/)
+      await expect(statusBadge).toHaveClass(/text-amber-700/)
+
+      const statusIcon = statusBadge.locator('svg')
+      await expect(statusIcon).toHaveClass(/lucide-clock-icon/)
+
     })
 
     test('deve exibir mensagem quando o pedido não é encontrado', async ({page})=> {
